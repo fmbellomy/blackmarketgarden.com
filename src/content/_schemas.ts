@@ -3,9 +3,9 @@ import { z } from "astro:content";
 export const blogSchema = z
   .object({
     author: z.string().optional(),
-    pubDatetime: z.date(),
+    datetime: z.date(),
     title: z.string(),
-    postSlug: z.string().optional(),
+    slug: z.string().optional(),
     featured: z.boolean().optional(),
     draft: z.boolean().optional(),
     tags: z.array(z.string()).default(["others"]),
@@ -13,5 +13,13 @@ export const blogSchema = z
     description: z.string(),
   })
   .strict();
-
+export const showSchema = z.object({
+  title: z.string(),
+  slug: z.string().optional(),
+  location: z.string(),
+  datetime: z.date(),
+  description: z.string(),
+  draft: z.boolean().optional(),
+}).strict();
 export type BlogFrontmatter = z.infer<typeof blogSchema>;
+export type ShowFrontmatter = z.infer<typeof showSchema>;

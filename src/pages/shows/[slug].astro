@@ -1,0 +1,58 @@
+---
+import { CollectionEntry, getCollection } from "astro:content";
+import Shows from "@layouts/Shows.astro";
+import ShowDetails from "@layouts/ShowDetails.astro";
+import { getSortedPosts, getSortedShows } from "@utils/getSortedPosts";
+import getPageNumbers from "@utils/getPageNumbers";
+import slugify from "@utils/slugify";
+import { SITE } from "@config";
+
+export interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+export async function getStaticPaths() {
+  const shows = await getCollection("show", ({ data }) => !data.draft);
+
+  const showResult = shows.map(show => ({
+    params: { slug: slugify(show.data) },
+    props: { show },
+  }));
+
+  const showPaths = getPageNumbers(shows.length).map(pageNum => ({
+    params: { slug: String(pageNum) },
+  }));
+
+  return [...showResult, ...showPaths];
+}
+
+const { slug } = Astro.params;
+const { show } = Astro.props;
+
+const shows = await getCollection("show");
+
+const sortedShows = getSortedShows(shows);
+
+const totalPages = getPageNumbers(sortedShows.length);
+
+const currentPage =
+  slug && !isNaN(Number(slug)) && totalPages.includes(Number(slug))
+    ? Number(slug)
+    : 0;
+const lastShow = currentPage * SITE.postPerPage;
+const startShow = lastShow - SITE.postPerPage;
+
+const paginatedShows = sortedShows.slice(startShow, lastShow);
+---
+
+{
+  show ? (
+    <ShowDetails show={show} />
+  ) : (
+    <Shows
+      shows={paginatedShows}
+      pageNum={currentPage}
+      totalPages={totalPages.length}
+    />
+  )
+}
