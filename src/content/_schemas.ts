@@ -5,7 +5,7 @@ export const blogSchema = z
     author: z.string().optional(),
     datetime: z.date(),
     title: z.string(),
-    slug: z.string().optional(),
+    postSlug: z.string().optional(),
     featured: z.boolean().optional(),
     draft: z.boolean().optional(),
     tags: z.array(z.string()).default(["others"]),
@@ -15,11 +15,12 @@ export const blogSchema = z
   .strict();
 export const showSchema = z.object({
   title: z.string(),
-  slug: z.string().optional(),
+  postSlug: z.string().optional(),
   location: z.string(),
   datetime: z.date(),
   description: z.string(),
   draft: z.boolean().optional(),
+  tags: z.array(z.string()).default(["others"])
 }).strict();
 export type BlogFrontmatter = z.infer<typeof blogSchema>;
 export type ShowFrontmatter = z.infer<typeof showSchema>;

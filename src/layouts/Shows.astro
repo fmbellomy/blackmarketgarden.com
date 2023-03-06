@@ -27,7 +27,7 @@ const next = pageNum < totalPages ? "" : "disabled";
     <ul>
       {
         shows.map(({ data }) => (
-          <Card href={`/shows/${slugify(data)}`} frontmatter={data} oldShow={data.datetime < new Date(Date.now())} />
+          <Card href={`/shows/${slugify(data)}`} frontmatter={data}/>
         ))
       }
     </ul>

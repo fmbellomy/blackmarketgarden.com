@@ -48,3 +48,18 @@ const FormattedDatetime = ({ datetime }: { datetime: string | Date }) => {
     </>
   );
 };
+const FormattedDate = ({ datetime }: { datetime: string | Date }) => {
+  const myDatetime = new Date(datetime);
+
+  const date = myDatetime.toLocaleDateString([], {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  return (
+    <>
+      {date}
+    </>
+  );
+};
+
