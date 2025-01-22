@@ -1,0 +1,135 @@
+---
+import { SITE } from "@config";
+import Layout from "@layouts/Layout.astro";
+import Main from "@layouts/Main.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import Card from "@components/Card";
+import LinkButton from "@components/LinkButton.astro";
+import { parseICalToShows, BMGShow } from "@utils/iCalParse";
+import { checkCalendar } from "@utils/getShows";
+
+export interface Props {
+  pageNum: number;
+  totalPages: number;
+}
+const { pageNum, totalPages } = Astro.props;
+
+const prev = pageNum > 1 ? "" : "disabled";
+const next = pageNum < totalPages ? "" : "disabled";
+
+let shows = checkCalendar();
+let bmgshows_past = shows.filter(show => show.datetime.getTime() < Date.now());
+let bmgshows_upcoming = shows.filter(
+  show => show.datetime.getTime() > Date.now()
+);
+---
+
+<Layout title={`Shows | ${SITE.title}`}>
+  <Header activeNav="shows" />
+  <Main pageTitle="Upcoming Shows">
+    {
+      bmgshows_upcoming.length < 1 ? (
+        <>
+          <div class="no-shows-notice">
+            We have no currently planned shows. Stay tuned for more updates.
+          </div>
+        </>
+      ) : (
+        ""
+      )
+    }
+
+    <ul>
+      {
+        bmgshows_upcoming.map(show => (
+          <Card
+            href=""
+            frontmatter={{
+              datetime: new Date(
+                show.datetime.getTime() -
+                  new Date().getTimezoneOffset() * 60 * 1000
+              ),
+              description: show.location,
+              title: show.title,
+              tags: ["show"],
+            }}
+            client:load
+          />
+        ))
+      }
+    </ul>
+
+    <div class="old-show-header">Past Shows:</div>
+    <ul>
+      {
+        bmgshows_past.map(show => (
+          <Card
+            href=""
+            frontmatter={{
+              datetime: new Date(
+                show.datetime.getTime() -
+                  new Date().getTimezoneOffset() * 60 * 1000
+              ),
+              description: show.location,
+              title: show.title,
+              tags: ["show"],
+            }}
+            client:load
+          />
+        ))
+      }
+    </ul>
+  </Main>
+  {
+    totalPages > 1 && (
+      <nav class="pagination-wrapper" aria-label="Pagination">
+        <LinkButton
+          disabled={prev === "disabled"}
+          href={`/shows${pageNum - 1 !== 1 ? "/" + (pageNum - 1) : ""}`}
+          className={`mr-4 select-none ${prev}`}
+          ariaLabel="Previous"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class={`${prev}-svg`}>
+            <path d="M12.707 17.293 8.414 13H18v-2H8.414l4.293-4.293-1.414-1.414L4.586 12l6.707 6.707z" />
+          </svg>
+          Prev
+        </LinkButton>
+        <LinkButton
+          disabled={next === "disabled"}
+          href={`/shows/${pageNum + 1}`}
+          className={`ml-4 select-none ${next}`}
+          ariaLabel="Next"
+        >
+          Next
+          <svg xmlns="http://www.w3.org/2000/svg" class={`${next}-svg`}>
+            <path d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z" />
+          </svg>
+        </LinkButton>
+      </nav>
+    )
+  }
+  <Footer noMarginTop={totalPages > 1} />
+</Layout>
+
+<style>
+  .pagination-wrapper {
+    @apply mb-8 mt-auto flex justify-center;
+  }
+  .disabled {
+    @apply pointer-events-none select-none opacity-50 hover:text-skin-base group-hover:fill-skin-base;
+  }
+  .disabled-svg {
+    @apply group-hover:!fill-skin-base;
+  }
+  .old-show-header {
+    margin-top: 60%;
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+  .no-shows-notice {
+    font-size: 1.3rem;
+    font-weight: 300;
+    margin-top: 2cm;
+  }
+</style>

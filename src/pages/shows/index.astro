@@ -1,0 +1,18 @@
+---
+import { SITE } from "@config";
+import Shows from "@layouts/Shows.astro";
+import { getSortedShows } from "@utils/getSortedPosts";
+import getPageNumbers from "@utils/getPageNumbers";
+
+import { getCollection } from "astro:content";
+
+const shows = await getCollection("show");
+
+const sortedShows = getSortedShows(shows);
+
+const totalPages = getPageNumbers(sortedShows.length);
+
+const paginatedShows = sortedShows.slice(0, SITE.postPerPage);
+---
+
+<Shows shows={paginatedShows} pageNum={1} totalPages={totalPages.length} />
